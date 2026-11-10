@@ -26,10 +26,14 @@ $(BUILD)/teste_lista_dupla: test/teste_lista_dupla.c lista-dupla.c lista-dupla.h
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) test/teste_lista_dupla.c lista-dupla.c -o $@
 
-test: $(BUILD)/teste_lista_simples $(BUILD)/teste_lista_dupla
-	./$(BUILD)/teste_lista_simples && ./$(BUILD)/teste_lista_dupla
+$(BUILD)/teste_lista_circular: test/teste_lista_circular.c lista-dupla-circular.c lista-dupla-circular.h
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) test/teste_lista_circular.c lista-dupla-circular.c -o $@
 
-valgrind: $(BUILD)/teste_lista_simples $(BUILD)/teste_lista_dupla
+test: $(BUILD)/teste_lista_simples $(BUILD)/teste_lista_dupla $(BUILD)/teste_lista_circular
+	./$(BUILD)/teste_lista_simples && ./$(BUILD)/teste_lista_dupla && ./$(BUILD)/teste_lista_circular
+
+valgrind: $(BUILD)/teste_lista_simples $(BUILD)/teste_lista_dupla $(BUILD)/teste_lista_circular
 	valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./$(BUILD)/teste_lista_simples
 
 clean:
