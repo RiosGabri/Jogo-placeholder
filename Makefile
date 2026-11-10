@@ -18,13 +18,13 @@ $(BUILD)/jogo: $(JOGO_SRCS) $(CABECALHOS)
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) $(RAYLIB_CFLAGS) $(JOGO_SRCS) -o $@ $(RAYLIB_LIBS) -lm
 
-$(BUILD)/teste_lista_simples: teste_lista.c lista-simples.c lista-simples.h
+$(BUILD)/teste_lista_simples: test/teste_lista_simples.c lista-simples.c lista-simples.h
 	@mkdir -p $(BUILD)
-	$(CC) $(CFLAGS) teste_lista.c lista-simples.c -o $@
+	$(CC) $(CFLAGS) test/teste_lista_simples.c lista-simples.c -o $@
 
-$(BUILD)/teste_lista_dupla: teste_lista.c lista-dupla.c lista-dupla.h
+$(BUILD)/teste_lista_dupla: test/teste_lista_dupla.c lista-dupla.c lista-dupla.h
 	@mkdir -p $(BUILD)
-	$(CC) $(CFLAGS) teste_lista.c lista-dupla.c -o $@
+	$(CC) $(CFLAGS) test/teste_lista_dupla.c lista-dupla.c -o $@
 
 test: $(BUILD)/teste_lista_simples $(BUILD)/teste_lista_dupla
 	./$(BUILD)/teste_lista_simples && ./$(BUILD)/teste_lista_dupla
