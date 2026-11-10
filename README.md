@@ -36,7 +36,48 @@ Descobrir quem matou Chaplin, usando o caderno de pistas e depoimentos, antes qu
 
 ## Como compilar e executar
 
-Em breve.
+### Dependências
+
+- Compilador C (GCC), Make e Git
+- Bibliotecas de desenvolvimento do X11/OpenGL, usadas pela raylib
+
+No Debian/Ubuntu/Linux Mint:
+
+```sh
+sudo apt install build-essential git libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev
+```
+
+### Passos
+
+Clone o repositório já com os submódulos:
+
+```sh
+git clone --recurse-submodules https://github.com/RiosGabri/Ultimo-turno.git
+```
+
+Se o repositório já foi clonado, baixe os submódulos com:
+
+```sh
+make submodules
+```
+
+Compile e execute:
+
+```sh
+make
+./build/jogo
+```
+
+O primeiro `make` compila a **raylib** a partir do submódulo (`raylib/`) e gera `raylib/src/libraylib.a`. O jogo é então compilado e linkado contra essa biblioteca local, sem depender de uma instalação do sistema.
+
+Outros comandos:
+
+```sh
+make test        # testes da lista
+make valgrind    # testes com verificação de memória
+make clean       # remove a pasta build/
+make distclean   # remove build/ e os artefatos compilados da raylib
+```
 
 ## Como jogar
 
