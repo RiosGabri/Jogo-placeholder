@@ -18,9 +18,9 @@ $(BUILD)/jogo: $(JOGO_SRCS) $(CABECALHOS)
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) $(RAYLIB_CFLAGS) $(JOGO_SRCS) -o $@ $(RAYLIB_LIBS) -lm
 
-$(BUILD)/teste_lista: teste_lista.c listas.c listas.h
+$(BUILD)/teste_lista: teste_lista.c lista-simples.c lista-simples.h
 	@mkdir -p $(BUILD)
-	$(CC) $(CFLAGS) teste_lista.c listas.c -o $@
+	$(CC) $(CFLAGS) teste_lista.c lista-simples.c -o $@
 
 test: $(BUILD)/teste_lista
 	./$(BUILD)/teste_lista

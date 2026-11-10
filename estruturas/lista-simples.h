@@ -1,6 +1,7 @@
-#ifndef LISTA_H
-#define LISTA_H
+#ifndef LISTA_SIMPLES_H
+#define LISTA_SIMPLES_H
 
+//lestruturas para lista simples
 typedef struct NoLista {
     int id;
     void *dado;

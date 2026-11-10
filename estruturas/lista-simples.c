@@ -1,4 +1,4 @@
-#include "lista.h"
+#include "lista-simples.h"
 #include <stdlib.h>
 
 Lista *criar_lista(void) {
