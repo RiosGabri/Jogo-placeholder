@@ -13,12 +13,12 @@ typedef struct {
     NoLista *fim;
 } Lista;
 
-Lista *criar_lista(void);
-int inserir_no_fim(Lista *lista, int id, void *dado);
-void *buscar_por_id(const Lista *lista, int id);
-void *remover(Lista *lista, int id);
-void listar(const Lista *lista, void (*imprimir)(const void *dado));
-void liberar_lista(Lista *lista);
-void trocar_dados(Lista *lista, int id1, int id2);
+Lista *criar_lista_simples(void);
+int lista_simples_inserir_no_fim(Lista *lista, int id, void *dado);
+void *lista_simples_buscar_por_id(const Lista *lista, int id);
+void *lista_simples_remover(Lista *lista, int id);
+void lista_simples_listar(const Lista *lista, void (*imprimir)(const void *dado));
+void lista_simples_liberar_lista(Lista *lista);
+void lista_simples_trocar_dados(Lista *lista, int id1, int id2);
 
 #endif

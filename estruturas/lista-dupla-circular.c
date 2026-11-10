@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-ListaDuplaCircular *criar_lista(void) {
+ListaDuplaCircular *criar_lista_dupla_circular(void) {
     ListaDuplaCircular *lista = malloc(sizeof(ListaDuplaCircular));
     if (lista == NULL) {
         return NULL;
@@ -13,7 +13,7 @@ ListaDuplaCircular *criar_lista(void) {
     return lista;
 }
 
-int inserir_no_fim(ListaDuplaCircular *lista, int id, void *dado) {
+int lista_dupla_circular_inserir_no_fim(ListaDuplaCircular *lista, int id, void *dado) {
     if (lista == NULL || dado == NULL) {
         return 0;
     }
@@ -42,7 +42,7 @@ int inserir_no_fim(ListaDuplaCircular *lista, int id, void *dado) {
     return 1;
 }
 
-void *buscar_por_id(const ListaDuplaCircular *lista, int id) {
+void *lista_dupla_circular_buscar_por_id(const ListaDuplaCircular *lista, int id) {
     if (lista == NULL || lista->inicio == NULL) {
         return NULL;
     }
@@ -58,7 +58,7 @@ void *buscar_por_id(const ListaDuplaCircular *lista, int id) {
     return NULL;
 }
 
-void *remover(ListaDuplaCircular *lista, int id) {
+void *lista_dupla_circular_remover(ListaDuplaCircular *lista, int id) {
     if (lista == NULL || lista->inicio == NULL) {
         return NULL;
     }
@@ -89,7 +89,7 @@ void *remover(ListaDuplaCircular *lista, int id) {
     return NULL; // Node with the given id not found
 }
 
-void listar(const ListaDuplaCircular *lista) {
+void lista_dupla_circular_listar(const ListaDuplaCircular *lista) {
     if (lista == NULL || lista->inicio == NULL) {
         return;
     }
@@ -101,7 +101,7 @@ void listar(const ListaDuplaCircular *lista) {
     } while (atual != lista->inicio);
 }
 
-void liberar_lista(ListaDuplaCircular *lista) {
+void liberar_lista_dupla_circular(ListaDuplaCircular *lista) {
     if (lista == NULL || lista->inicio == NULL) {
         free(lista);
         return;
@@ -117,7 +117,7 @@ void liberar_lista(ListaDuplaCircular *lista) {
     free(lista);
 }
 
-void trocar_dados(ListaDuplaCircular *lista, int id1, int id2) {
+void lista_dupla_circular_trocar_dados(ListaDuplaCircular *lista, int id1, int id2) {
     if (lista == NULL || lista->inicio == NULL) {
         return;
     }

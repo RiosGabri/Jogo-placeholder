@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 
-ListaDupla *criar_lista(void){
+ListaDupla *criar_lista_dupla(void){
     ListaDupla *lista = malloc(sizeof(ListaDupla));
     if (lista == NULL) {
         return NULL;
@@ -13,7 +13,7 @@ ListaDupla *criar_lista(void){
     return lista;
 }
 
-int inserir_no_fim(ListaDupla *lista, int id, void *dado) {
+int lista_dupla_inserir_no_fim(ListaDupla *lista, int id, void *dado) {
     if (lista == NULL || dado == NULL) {
         return 0;
     }
@@ -38,7 +38,7 @@ int inserir_no_fim(ListaDupla *lista, int id, void *dado) {
     return 1;
 }
 
-void *buscar_por_id(const ListaDupla *lista, int id) {
+void *lista_dupla_buscar_por_id(const ListaDupla *lista, int id) {
     if (lista == NULL) {
         return NULL;
     }
@@ -52,7 +52,7 @@ void *buscar_por_id(const ListaDupla *lista, int id) {
     return NULL;
 }
 
-void *remover(ListaDupla *lista, int id) {
+void *lista_dupla_remover(ListaDupla *lista, int id) {
     if (lista == NULL) {
         return NULL;
     }
@@ -84,7 +84,7 @@ void *remover(ListaDupla *lista, int id) {
     return dado;
 }
 
-void listar(const ListaDupla *lista) {
+void lista_dupla_listar(const ListaDupla *lista) {
     NoListaDupla *atual = lista->inicio;
     while (atual != NULL) {
         printf("ID: %d, Dado: %p\n", atual->id, atual->dado);
@@ -92,7 +92,7 @@ void listar(const ListaDupla *lista) {
     }
 }
 
-void liberar_lista(ListaDupla *lista) {
+void liberar_lista_dupla(ListaDupla *lista) {
     if (lista == NULL) {
         return;
     }
@@ -107,7 +107,7 @@ void liberar_lista(ListaDupla *lista) {
     free(lista);
 }
 
-void trocar_dados(ListaDupla *lista, int id1, int id2) {
+void lista_dupla_trocar_dados(ListaDupla *lista, int id1, int id2) {
     if (lista == NULL) {
         return;
     }

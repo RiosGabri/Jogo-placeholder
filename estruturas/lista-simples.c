@@ -1,7 +1,7 @@
 #include "lista-simples.h"
 #include <stdlib.h>
 
-Lista *criar_lista(void) {
+Lista *criar_lista_simples(void) {
     Lista *lista = malloc(sizeof(Lista));
     if (lista == NULL) {
         return NULL;
@@ -12,7 +12,7 @@ Lista *criar_lista(void) {
     return lista;
 }
 
-int inserir_no_fim(Lista *lista, int id, void *dado) {
+int lista_simples_inserir_no_fim(Lista *lista, int id, void *dado) {
     if (lista == NULL || dado == NULL) {
         return 0;
     }
@@ -36,7 +36,7 @@ int inserir_no_fim(Lista *lista, int id, void *dado) {
     return 1;
 }
 
-void *buscar_por_id(const Lista *lista, int id) {
+void *lista_simples_buscar_por_id(const Lista *lista, int id) {
     if (lista == NULL) {
         return NULL;
     }
@@ -50,7 +50,7 @@ void *buscar_por_id(const Lista *lista, int id) {
     return NULL;
 }
 
-void *remover(Lista *lista, int id) {
+void *lista_simples_remover(Lista *lista, int id) {
     if (lista == NULL) {
         return NULL;
     }
@@ -82,7 +82,7 @@ void *remover(Lista *lista, int id) {
     return dado;
 }
 
-void listar(const Lista *lista, void (*imprimir)(const void *dado)) {
+void lista_simples_listar(const Lista *lista, void (*imprimir)(const void *dado)) {
     if (lista == NULL || imprimir == NULL) {
         return;
     }
@@ -92,7 +92,7 @@ void listar(const Lista *lista, void (*imprimir)(const void *dado)) {
     }
 }
 
-void liberar_lista(Lista *lista) {
+void liberar_lista_simples(Lista *lista) {
     if (lista == NULL) {
         return;
     }
@@ -107,7 +107,7 @@ void liberar_lista(Lista *lista) {
     free(lista);
 }
 
-void trocar_dados(Lista *lista, int id1, int id2) {
+void lista_simples_trocar_dados(Lista *lista, int id1, int id2) {
     if (lista == NULL) {
         return;
     }
