@@ -1,4 +1,4 @@
-#include "lista.h"
+#include "lista-simples.h"
 #include <stdlib.h>
 
 Lista *criar_lista(void) {
@@ -105,4 +105,29 @@ void liberar_lista(Lista *lista) {
     }
 
     free(lista);
+}
+
+void trocar_dados(Lista *lista, int id1, int id2) {
+    if (lista == NULL) {
+        return;
+    }
+
+    NoLista *no1 = NULL;
+    NoLista *no2 = NULL;
+
+    NoLista *atual = lista->inicio;
+    while (atual != NULL) {
+        if (atual->id == id1) {
+            no1 = atual;
+        } else if (atual->id == id2) {
+            no2 = atual;
+        }
+        atual = atual->prox;
+    }
+
+    if (no1 != NULL && no2 != NULL) {
+        void *temp = no1->dado;
+        no1->dado = no2->dado;
+        no2->dado = temp;
+    }
 }
