@@ -11,5 +11,5 @@ typedef struct {
 } Suspeito;
 
 void carregar_suspeito(ListaDuplaCircular *lista, const char *nome, const char *cargo, int situacao, int papel);
-
+int contar_vivos(ListaDuplaCircular *lista);
 #endif

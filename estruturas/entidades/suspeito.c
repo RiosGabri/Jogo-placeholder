@@ -21,3 +21,26 @@ void carregar_suspeito(ListaDuplaCircular *lista, const char *nome, const char *
     // Inserir o suspeito na lista
     lista_dupla_circular_inserir_no_fim(lista, novo_suspeito->id, novo_suspeito);
 }
+
+int contar_vivos(ListaDuplaCircular *lista){
+    if (lista == NULL) {
+        return 0; // Lista nula, não há suspeitos vivos
+    }
+
+    int contador = 0;
+    NoListaDuplaCircular *atual = lista->inicio;
+
+    if (atual == NULL) {
+        return 0; // Lista vazia, não há suspeitos vivos
+    }
+
+    do {
+        Suspeito *suspeito = (Suspeito *)atual->dado;
+        if (suspeito != NULL && suspeito->situacao == 0) { // 0 = vivo
+            contador++;
+        }
+        atual = atual->prox;
+    } while (atual != lista->inicio);
+
+    return contador;
+}
