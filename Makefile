@@ -24,13 +24,16 @@ RAYLIB_LIBS := -L$(RAYLIB_SRC) -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 # ---------------------------------------------------------------------------
 # Fontes
 # ---------------------------------------------------------------------------
-# Jogo: arquivos na raiz e em estruturas/ (a pasta test/ fica de fora).
-# Como as três listas usam os mesmos nomes de função, dá para escolher quais
-# implementações linkar, por exemplo:
-#   make JOGO_ESTRUTURAS=estruturas/lista-simples.c
-JOGO_ESTRUTURAS ?= $(wildcard $(ESTRUTURAS_DIR)/*.c)
+# Jogo: arquivos na raiz, em estruturas/listas/ e estruturas/entidades/
+# (a pasta test/ fica de fora). As funções das listas têm prefixos diferentes,
+# então as três implementações podem ser linkadas juntas. Se quiser linkar
+# apenas uma, por exemplo:
+#   make JOGO_ESTRUTURAS=estruturas/listas/lista-simples.c
+JOGO_ESTRUTURAS ?= $(wildcard $(ESTRUTURAS_DIR)/listas/*.c) \
+                   $(wildcard $(ESTRUTURAS_DIR)/entidades/*.c)
 JOGO_SRCS := $(wildcard *.c) $(JOGO_ESTRUTURAS)
-CABECALHOS := $(wildcard *.h) $(wildcard $(ESTRUTURAS_DIR)/*.h)
+CABECALHOS := $(wildcard *.h) $(wildcard $(ESTRUTURAS_DIR)/*.h) \
+              $(wildcard $(ESTRUTURAS_DIR)/*/*.h)
 
 # Cada teste linka apenas a implementação que está testando, porque as
 # listas compartilham os mesmos nomes de funções.
@@ -38,9 +41,9 @@ TESTE_LISTA_SIMPLES_SRC := $(TEST_DIR)/teste_lista_simples.c
 TESTE_LISTA_DUPLA_SRC := $(TEST_DIR)/teste_lista_dupla.c
 TESTE_LISTA_CIRCULAR_SRC := $(TEST_DIR)/teste_lista_circular.c
 
-TESTE_LISTA_SIMPLES_IMPL := $(ESTRUTURAS_DIR)/lista-simples.c
-TESTE_LISTA_DUPLA_IMPL := $(ESTRUTURAS_DIR)/lista-dupla.c
-TESTE_LISTA_CIRCULAR_IMPL := $(ESTRUTURAS_DIR)/lista-dupla-circular.c
+TESTE_LISTA_SIMPLES_IMPL := $(ESTRUTURAS_DIR)/listas/lista-simples.c
+TESTE_LISTA_DUPLA_IMPL := $(ESTRUTURAS_DIR)/listas/lista-dupla.c
+TESTE_LISTA_CIRCULAR_IMPL := $(ESTRUTURAS_DIR)/listas/lista-dupla-circular.c
 
 # Só entram no alvo test os arquivos de teste existentes e não vazios.
 # Assim o Makefile continua válido enquanto os testes novos são escritos.
@@ -90,17 +93,17 @@ $(BUILD)/jogo: $(JOGO_SRCS) $(CABECALHOS) $(RAYLIB_LIB)
 # Testes das estruturas
 # ---------------------------------------------------------------------------
 $(BUILD)/teste_lista_simples: $(TESTE_LISTA_SIMPLES_SRC) $(TESTE_LISTA_SIMPLES_IMPL) \
-		$(ESTRUTURAS_DIR)/lista-simples.h
+		$(ESTRUTURAS_DIR)/listas/lista-simples.h
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) $(INCLUDES) $< $(TESTE_LISTA_SIMPLES_IMPL) -o $@
 
 $(BUILD)/teste_lista_dupla: $(TESTE_LISTA_DUPLA_SRC) $(TESTE_LISTA_DUPLA_IMPL) \
-		$(ESTRUTURAS_DIR)/lista-dupla.h
+		$(ESTRUTURAS_DIR)/listas/lista-dupla.h
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) $(INCLUDES) $< $(TESTE_LISTA_DUPLA_IMPL) -o $@
 
 $(BUILD)/teste_lista_circular: $(TESTE_LISTA_CIRCULAR_SRC) $(TESTE_LISTA_CIRCULAR_IMPL) \
-		$(ESTRUTURAS_DIR)/lista-dupla-circular.h
+		$(ESTRUTURAS_DIR)/listas/lista-dupla-circular.h
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) $(INCLUDES) $< $(TESTE_LISTA_CIRCULAR_IMPL) -o $@
 

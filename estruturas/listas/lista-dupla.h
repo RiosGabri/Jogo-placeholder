@@ -18,7 +18,7 @@ int lista_dupla_inserir_no_fim(ListaDupla *lista, int id, void *dado);
 void *lista_dupla_buscar_por_id(const ListaDupla *lista, int id);
 void *lista_dupla_remover(ListaDupla *lista, int id);
 void lista_dupla_listar(const ListaDupla *lista);
-void lista_dupla_liberar_lista(ListaDupla *lista);
+void liberar_lista_dupla(ListaDupla *lista);
 void lista_dupla_trocar_dados(ListaDupla *lista, int id1, int id2);
 
 #endif

@@ -18,7 +18,7 @@ int lista_dupla_circular_inserir_no_fim(ListaDuplaCircular *lista, int id, void 
 void *lista_dupla_circular_buscar_por_id(const ListaDuplaCircular *lista, int id);
 void *lista_dupla_circular_remover(ListaDuplaCircular *lista, int id);
 void lista_dupla_circular_listar(const ListaDuplaCircular *lista);
-void lista_dupla_circular_liberar_lista(ListaDuplaCircular *lista);
-void trocar_dados(ListaDuplaCircular *lista, int id1, int id2);
+void liberar_lista_dupla_circular(ListaDuplaCircular *lista);
+void lista_dupla_circular_trocar_dados(ListaDuplaCircular *lista, int id1, int id2);
 
 #endif

@@ -1,4 +1,4 @@
-#include "lista-simples.h"
+#include "listas/lista-simples.h"
 
 #include <stdio.h>
 
