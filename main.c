@@ -5,13 +5,27 @@
 #define TITULO_JOGO "Último Turno"
 #define TAMANHO_TITULO 64
 
-#define TOTAL_BOTOES 4
+typedef enum {
+    OPCAO_INICIAR,
+    OPCAO_CONFIGURACOES,
+    OPCAO_TRILHA,
+    OPCAO_SAIR,
+    TOTAL_BOTOES
+} OpcaoMenu;
+
+#define TEXTO_RODAPE "Protótipo: botões ainda não funcionais"
+#define TAMANHO_RODAPE 18
 #define LARGURA_BOTAO 300
 #define ALTURA_BOTAO 56
 #define ESPACO_BOTOES 20
 #define TAMANHO_TEXTO_BOTAO 24
 
-static const char *ROTULOS[TOTAL_BOTOES] = {"Iniciar", "Configurações", "Trilha", "Sair"};
+static const char *ROTULOS[TOTAL_BOTOES] = {
+    [OPCAO_INICIAR] = "Iniciar",
+    [OPCAO_CONFIGURACOES] = "Configurações",
+    [OPCAO_TRILHA] = "Trilha",
+    [OPCAO_SAIR] = "Sair",
+};
 
 static Rectangle obter_retangulo_botao(int indice) {
     float x = (LARGURA_TELA - LARGURA_BOTAO) / 2.0f;
@@ -22,6 +36,11 @@ static Rectangle obter_retangulo_botao(int indice) {
 static void desenhar_titulo(void) {
     int largura = MeasureText(TITULO_JOGO, TAMANHO_TITULO);
     DrawText(TITULO_JOGO, (LARGURA_TELA - largura) / 2, 90, TAMANHO_TITULO, RAYWHITE);
+}
+
+static void desenhar_rodape(void) {
+    int largura = MeasureText(TEXTO_RODAPE, TAMANHO_RODAPE);
+    DrawText(TEXTO_RODAPE, (LARGURA_TELA - largura) / 2, ALTURA_TELA - 30, TAMANHO_RODAPE, GRAY);
 }
 
 static void desenhar_botao(int indice, bool destacado) {
@@ -72,6 +91,7 @@ int main(void) {
         for (int i = 0; i < TOTAL_BOTOES; i++) {
             desenhar_botao(i, i == selecionado);
         }
+        desenhar_rodape();
         EndDrawing();
     }
 
