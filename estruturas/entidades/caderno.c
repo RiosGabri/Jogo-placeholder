@@ -184,3 +184,22 @@ void ler_item_atual(Caderno *caderno){
         printf("Nenhum item atual para ler.\n");
     }
 }
+
+Depoimento* buscar_depoimento_por_id_reacao(Caderno *caderno, int id_suspeito) {
+    NoListaDupla *atual = caderno->depoimentos.inicio;
+    NoListaDupla *reacao_atual = caderno->reacoes.inicio;
+    while (atual != NULL) {
+        Depoimento *depoimento = (Depoimento *)atual->dado;
+        if (depoimento->id_suspeito == id_suspeito) {
+            while (reacao_atual != NULL) {
+                Reacao *reacao = (Reacao *)reacao_atual->dado;
+                if (reacao->id_depoimento == id_suspeito) {
+                    return depoimento;
+                }
+                reacao_atual = reacao_atual->prox;
+            }
+        }
+        atual = atual->prox;
+    }
+    return NULL; // Depoimento não encontrado
+}

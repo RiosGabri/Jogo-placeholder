@@ -67,6 +67,6 @@ void avancar_secao(Caderno *caderno); //move o atual para o próximo ou anterior
 void voltar_secao(Caderno *caderno);
 NoListaDupla *obter_item_atual(Caderno *caderno); //retorna o nó atual da seção, ou NULL se não houver
 void ler_item_atual(Caderno *caderno);
-
+Depoimento* buscar_depoimento_por_id_reacao(Caderno *caderno, int id_suspeito); //acha o depoimento ao qual uma reação se refere (linka um com o outro)
 
 #endif
