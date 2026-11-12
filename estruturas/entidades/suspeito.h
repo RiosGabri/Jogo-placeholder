@@ -22,6 +22,6 @@ typedef struct {
     enum Papel papel; 
 } Suspeito;
 
-void carregar_suspeito(ListaDuplaCircular *lista, const char *nome, const char *cargo, int situacao, int papel);
+void carregar_suspeito(ListaDuplaCircular *lista, const char *nome, const char *cargo, enum Situacao situacao, enum Papel papel);
 int contar_vivos(ListaDuplaCircular *lista);
 #endif
