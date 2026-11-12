@@ -40,10 +40,19 @@ CABECALHOS := $(wildcard *.h) $(wildcard $(ESTRUTURAS_DIR)/*.h) \
 TESTE_LISTA_SIMPLES_SRC := $(TEST_DIR)/teste_lista_simples.c
 TESTE_LISTA_DUPLA_SRC := $(TEST_DIR)/teste_lista_dupla.c
 TESTE_LISTA_CIRCULAR_SRC := $(TEST_DIR)/teste_lista_circular.c
+TESTE_CADERNO_SRC := $(TEST_DIR)/teste_caderno.c
+TESTE_SUSPEITO_SRC := $(TEST_DIR)/teste_suspeito.c
 
 TESTE_LISTA_SIMPLES_IMPL := $(ESTRUTURAS_DIR)/listas/lista-simples.c
 TESTE_LISTA_DUPLA_IMPL := $(ESTRUTURAS_DIR)/listas/lista-dupla.c
 TESTE_LISTA_CIRCULAR_IMPL := $(ESTRUTURAS_DIR)/listas/lista-dupla-circular.c
+# O caderno usa a lista dupla (seções) e a lista simples (resultado do filtro).
+TESTE_CADERNO_IMPL := $(ESTRUTURAS_DIR)/entidades/caderno.c \
+                      $(ESTRUTURAS_DIR)/listas/lista-simples.c \
+                      $(ESTRUTURAS_DIR)/listas/lista-dupla.c
+# Suspeitos ficam na lista dupla circular.
+TESTE_SUSPEITO_IMPL := $(ESTRUTURAS_DIR)/entidades/suspeito.c \
+                       $(ESTRUTURAS_DIR)/listas/lista-dupla-circular.c
 
 # Só entram no alvo test os arquivos de teste existentes e não vazios.
 # Assim o Makefile continua válido enquanto os testes novos são escritos.
@@ -56,6 +65,12 @@ TESTE_BINS += $(BUILD)/teste_lista_dupla
 endif
 ifneq ($(strip $(shell test -s $(TESTE_LISTA_CIRCULAR_SRC) && echo 1)),)
 TESTE_BINS += $(BUILD)/teste_lista_circular
+endif
+ifneq ($(strip $(shell test -s $(TESTE_CADERNO_SRC) && echo 1)),)
+TESTE_BINS += $(BUILD)/teste_caderno
+endif
+ifneq ($(strip $(shell test -s $(TESTE_SUSPEITO_SRC) && echo 1)),)
+TESTE_BINS += $(BUILD)/teste_suspeito
 endif
 
 .PHONY: all jogo test valgrind submodules raylib clean distclean FORCE
@@ -106,6 +121,19 @@ $(BUILD)/teste_lista_circular: $(TESTE_LISTA_CIRCULAR_SRC) $(TESTE_LISTA_CIRCULA
 		$(ESTRUTURAS_DIR)/listas/lista-dupla-circular.h
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) $(INCLUDES) $< $(TESTE_LISTA_CIRCULAR_IMPL) -o $@
+
+$(BUILD)/teste_caderno: $(TESTE_CADERNO_SRC) $(TESTE_CADERNO_IMPL) \
+		$(ESTRUTURAS_DIR)/entidades/caderno.h \
+		$(ESTRUTURAS_DIR)/listas/lista-simples.h \
+		$(ESTRUTURAS_DIR)/listas/lista-dupla.h
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) $(INCLUDES) $< $(TESTE_CADERNO_IMPL) -o $@
+
+$(BUILD)/teste_suspeito: $(TESTE_SUSPEITO_SRC) $(TESTE_SUSPEITO_IMPL) \
+		$(ESTRUTURAS_DIR)/entidades/suspeito.h \
+		$(ESTRUTURAS_DIR)/listas/lista-dupla-circular.h
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) $(INCLUDES) $< $(TESTE_SUSPEITO_IMPL) -o $@
 
 test: $(TESTE_BINS)
 	@status=0; \
