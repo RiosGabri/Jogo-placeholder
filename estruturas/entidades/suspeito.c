@@ -1,20 +1,19 @@
+#define _POSIX_C_SOURCE 200809L //para o strdup funcionar no linux
 #include "entidades/suspeito.h"
 #include "listas/lista-dupla-circular.h"
 #include <stdlib.h>
 #include <string.h>
 
-void carregar_suspeito(ListaDuplaCircular *lista, const char *nome, const char *cargo, enum Situacao situacao, enum Papel papel){
+void carregar_suspeito(ListaDuplaCircular *lista,int id, char *nome, char *cargo, enum Situacao situacao, enum Papel papel){
     Suspeito *novo_suspeito = malloc(sizeof(Suspeito));
     if (novo_suspeito == NULL) {
         return; // Falha ao alocar memória
     }
 
     // Atribuir valores aos campos do suspeito
-    novo_suspeito->id = rand(); // Gera um ID aleatório para o suspeito
-    strncpy(novo_suspeito->nome, nome, sizeof(novo_suspeito->nome) - 1);
-    strncpy(novo_suspeito->cargo, cargo, sizeof(novo_suspeito->cargo) - 1);
-    novo_suspeito->nome[sizeof(novo_suspeito->nome) - 1] = '\0';
-    novo_suspeito->cargo[sizeof(novo_suspeito->cargo) - 1] = '\0';
+    novo_suspeito->id = id;
+    novo_suspeito->nome = strdup(nome);
+    novo_suspeito->cargo = strdup(cargo);
     novo_suspeito->situacao = situacao;
     novo_suspeito->papel = papel;
 
@@ -43,4 +42,17 @@ int contar_vivos(ListaDuplaCircular *lista){
     } while (atual != lista->inicio);
 
     return contador;
+}
+
+void liberar_suspeitos(ListaDuplaCircular *lista) {
+    if (!lista || !lista->inicio) { liberar_lista_dupla_circular(lista); return; }
+    NoListaDuplaCircular *atual = lista->inicio;
+    do {
+        Suspeito *s = atual->dado;
+        free(s->nome);
+        free(s->cargo);
+        free(s);
+        atual = atual->prox;
+    } while (atual != lista->inicio);
+    liberar_lista_dupla_circular(lista);
 }

@@ -16,12 +16,13 @@ enum Papel {
 
 typedef struct {
     int id;
-    char nome[100];
-    char cargo[50];
+    char *nome;
+    char *cargo;
     enum Situacao situacao; 
     enum Papel papel; 
 } Suspeito;
 
-void carregar_suspeito(ListaDuplaCircular *lista, const char *nome, const char *cargo, enum Situacao situacao, enum Papel papel);
+void carregar_suspeito(ListaDuplaCircular *lista, int id, char *nome, char *cargo, enum Situacao situacao, enum Papel papel);
 int contar_vivos(ListaDuplaCircular *lista);
+void liberar_suspeitos(ListaDuplaCircular *lista);
 #endif
