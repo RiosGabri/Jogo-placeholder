@@ -11,7 +11,8 @@ enum Situacao {
 enum Papel {
     INOCENTE,
     VITIMA,
-    ASSASSINO
+    ASSASSINO,
+    CUMPLICE
 };
 
 typedef struct {
