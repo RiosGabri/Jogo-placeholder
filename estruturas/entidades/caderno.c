@@ -32,7 +32,7 @@ Caderno* inicializar_caderno(int id) {
     return caderno;
 }
 
-void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem_falou, char* local, char* sobre_quem_fala, enum Categorias categoria, char* texto) {
+void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem_falou, char* local, char* periodo, char* sobre_quem_fala, enum Categorias categoria, char* texto) {
     //nó do novo depoimento que fica na seção de depoimentos do caderno
     NoListaDupla *novo_depoimento = malloc(sizeof(NoListaDupla));
     if (novo_depoimento == NULL) {
@@ -46,12 +46,11 @@ void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem
     }
     depoimento->id_suspeito = id_suspeito;
     depoimento->dia = dia;
-    strncpy(depoimento->quem_falou, quem_falou, sizeof(depoimento->quem_falou) - 1);
-    depoimento->quem_falou[sizeof(depoimento->quem_falou) - 1] = '\0';
-    strncpy(depoimento->local, local, sizeof(depoimento->local) - 1);
-    depoimento->local[sizeof(depoimento->local) - 1] = '\0';
-    strncpy(depoimento->sobre_quem_fala, sobre_quem_fala, sizeof(depoimento->sobre_quem_fala) - 1);
-    depoimento->sobre_quem_fala[sizeof(depoimento->sobre_quem_fala) - 1] = '\0';
+    depoimento->quem_falou = strdup(quem_falou);
+    depoimento->local = strdup(local);
+    depoimento->periodo = strdup(periodo);
+    depoimento->sobre_quem_fala = strdup(sobre_quem_fala);
+    depoimento->texto = strdup(texto);
     depoimento->categoria = categoria;
     strncpy(depoimento->texto, texto, sizeof(depoimento->texto) - 1);
     depoimento->texto[sizeof(depoimento->texto) - 1] = '\0';
@@ -70,7 +69,6 @@ void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem
     caderno->depoimentos.fim = novo_depoimento;
     caderno->depoimentos.tamanho++;
 }
-
 void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char* descricao, ListaDupla *suspeitos_relacionados) {
     //nó do novo depoimento que fica na seção de depoimentos do caderno
     NoListaDupla *nova_pista = malloc(sizeof(NoListaDupla));
@@ -84,12 +82,9 @@ void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char*
         return; // Falha ao alocar memória
     }
     pista->dia = dia;
-    strncpy(pista->local, local, sizeof(pista->local) - 1);
-    pista->local[sizeof(pista->local) - 1] = '\0';
-    strncpy(pista->objeto, objeto, sizeof(pista->objeto) - 1);
-    pista->objeto[sizeof(pista->objeto) - 1] = '\0';
-    strncpy(pista->descricao, descricao, sizeof(pista->descricao) - 1);
-    pista->descricao[sizeof(pista->descricao) - 1] = '\0';
+    pista->local = strdup(local);
+    pista->objeto = strdup(objeto);
+    pista->descricao = strdup(descricao);
     pista->suspeitos_relacionados = suspeitos_relacionados;
 
     //adicionando o depoimento na seção de depoimentos do caderno
@@ -106,7 +101,6 @@ void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char*
     caderno->pistas.fim = nova_pista;
     caderno->pistas.tamanho++;
 }
-
 void registrar_reacao(Caderno *caderno, int dia, int id_depoimento, char* quem_reagiu, enum TipoReacao tipo_reacao) {
     //nó da nova reação que fica na seção de reações do caderno
     NoListaDupla *nova_reacao = malloc(sizeof(NoListaDupla));
@@ -121,8 +115,7 @@ void registrar_reacao(Caderno *caderno, int dia, int id_depoimento, char* quem_r
     }
     reacao->dia = dia;
     reacao->id_depoimento = id_depoimento;
-    strncpy(reacao->quem_reagiu, quem_reagiu, sizeof(reacao->quem_reagiu) - 1);
-    reacao->quem_reagiu[sizeof(reacao->quem_reagiu) - 1] = '\0';
+    reacao->quem_reagiu = strdup(quem_reagiu);
     reacao->tipo_reacao = tipo_reacao;
 
     //adicionando a reação na seção de reações do caderno
@@ -159,6 +152,7 @@ void voltar_secao(Caderno *caderno){
         caderno->reacoes.atual = caderno->reacoes.atual->ant;
     }
 }
+
 NoListaDupla *obter_item_atual(Caderno *caderno){
     if (caderno->depoimentos.atual != NULL) {
         return caderno->depoimentos.atual;
@@ -203,6 +197,7 @@ Depoimento* buscar_depoimento_por_id_reacao(Caderno *caderno, int id_suspeito) {
     }
     return NULL; // Depoimento não encontrado
 }
+
 void liberar_caderno(Caderno *caderno) {
     // Liberar depoimentos
     NoListaDupla *atual = caderno->depoimentos.inicio;

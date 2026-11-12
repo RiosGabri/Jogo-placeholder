@@ -60,7 +60,7 @@ typedef struct {
 } Reacao;
 
 Caderno* inicializar_caderno(int id);
-void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem_falou, char* local, char* sobre_quem_fala, enum Categorias categoria, char* texto);
+void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem_falou, char* local, char *periodo, char* sobre_quem_fala, enum Categorias categoria, char* texto);
 void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char* descricao, ListaDupla *suspeitos_relacionados);
 void registrar_reacao(Caderno *caderno, int dia, int id_depoimento, char* quem_reagiu, enum TipoReacao tipo_reacao);
 void avancar_secao(Caderno *caderno); //move o atual para o próximo ou anterior da seção, parando nas pontas
