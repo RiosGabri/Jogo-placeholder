@@ -203,3 +203,35 @@ Depoimento* buscar_depoimento_por_id_reacao(Caderno *caderno, int id_suspeito) {
     }
     return NULL; // Depoimento não encontrado
 }
+void liberar_caderno(Caderno *caderno) {
+    // Liberar depoimentos
+    NoListaDupla *atual = caderno->depoimentos.inicio;
+    while (atual != NULL) {
+        NoListaDupla *proximo = atual->prox;
+        free(atual->dado); // Liberar o depoimento
+        free(atual);       // Liberar o nó da lista
+        atual = proximo;
+    }
+
+    // Liberar pistas
+    atual = caderno->pistas.inicio;
+    while (atual != NULL) {
+        NoListaDupla *proximo = atual->prox;
+        Pista *pista = (Pista *)atual->dado;
+        liberar_lista_dupla(pista->suspeitos_relacionados); // Liberar a lista de suspeitos relacionados
+        free(pista);       // Liberar a pista
+        free(atual);       // Liberar o nó da lista
+        atual = proximo;
+    }
+
+    // Liberar reações
+    atual = caderno->reacoes.inicio;
+    while (atual != NULL) {
+        NoListaDupla *proximo = atual->prox;
+        free(atual->dado); // Liberar a reação
+        free(atual);       // Liberar o nó da lista
+        atual = proximo;
+    }
+
+    free(caderno); // Liberar o caderno em si
+}
