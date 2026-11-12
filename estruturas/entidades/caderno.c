@@ -139,3 +139,48 @@ void registrar_reacao(Caderno *caderno, int dia, int id_depoimento, char* quem_r
     caderno->reacoes.fim = nova_reacao;
     caderno->reacoes.tamanho++;
 }
+
+void avancar_secao(Caderno *caderno){
+    if (caderno->depoimentos.atual != NULL && caderno->depoimentos.atual->prox != NULL) {
+        caderno->depoimentos.atual = caderno->depoimentos.atual->prox;
+    }else if (caderno->pistas.atual != NULL && caderno->pistas.atual->prox != NULL) {
+        caderno->pistas.atual = caderno->pistas.atual->prox;
+    } else if (caderno->reacoes.atual != NULL && caderno->reacoes.atual->prox != NULL) {
+        caderno->reacoes.atual = caderno->reacoes.atual->prox;
+    }
+}
+
+void voltar_secao(Caderno *caderno){
+    if (caderno->depoimentos.atual != NULL && caderno->depoimentos.atual->ant != NULL) {
+        caderno->depoimentos.atual = caderno->depoimentos.atual->ant;
+    }else if (caderno->pistas.atual != NULL && caderno->pistas.atual->ant != NULL) {
+        caderno->pistas.atual = caderno->pistas.atual->ant;
+    } else if (caderno->reacoes.atual != NULL && caderno->reacoes.atual->ant != NULL) {
+        caderno->reacoes.atual = caderno->reacoes.atual->ant;
+    }
+}
+NoListaDupla *obter_item_atual(Caderno *caderno){
+    if (caderno->depoimentos.atual != NULL) {
+        return caderno->depoimentos.atual;
+    } else if (caderno->pistas.atual != NULL) {
+        return caderno->pistas.atual;
+    } else if (caderno->reacoes.atual != NULL) {
+        return caderno->reacoes.atual;
+    }
+    return NULL; // Nenhum item atual
+}
+void ler_item_atual(Caderno *caderno){
+    if (caderno->depoimentos.atual != NULL) {
+        Depoimento *depoimento = (Depoimento *)caderno->depoimentos.atual->dado;
+        //printf por enquanto que nao tem graficos
+        printf("Depoimento do suspeito %d: %s\n", depoimento->id_suspeito, depoimento->texto);
+    } else if (caderno->pistas.atual != NULL) {
+        Pista *pista = (Pista *)caderno->pistas.atual->dado;
+        printf("Pista encontrada no dia %d: %s\n", pista->dia, pista->descricao);
+    } else if (caderno->reacoes.atual != NULL) {
+        Reacao *reacao = (Reacao *)caderno->reacoes.atual->dado;
+        printf("Reação de %s ao depoimento %d: %d\n", reacao->quem_reagiu, reacao->id_depoimento, reacao->tipo_reacao);
+    } else {
+        printf("Nenhum item atual para ler.\n");
+    }
+}
