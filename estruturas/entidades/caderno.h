@@ -39,14 +39,16 @@ typedef struct {
     Secao pistas;      // Lista de pistas
     Secao reacoes;     // Lista de reações
     int prox_id_depoimento; // Próximo ID de depoimento a ser atribuído e começa em 1
+    int prox_id_pista; // Próximo ID de pista a ser atribuído e começa em 1
+    int prox_id_reacao; // Próximo ID de reação a ser atribuído e começa em 1
 } Caderno;
 
 //secoes
 typedef struct {
-    int id_suspeito;
+    int id_depoimento;
     int dia;
-    int quem_falou; //falante
-    int sobre_quem_fala; //assunto
+    int id_falante; //quem falou
+    int id_assunto; //sobre quem fala
     char *local;
     enum Periodo periodo;
     enum Categorias categoria;
@@ -88,11 +90,11 @@ typedef struct {
     int periodo;   // manhã, tarde ou noite, ou DESABILITADO
 } CriterioFiltro;
 
-CriterioFiltro* criar_criterio_vazio(); //cria um filtro vazio, com todos os campos desabilitados
-CriterioFiltro* criar_criterio(int falante, int assunto, int dia, int periodo); //o campo que a pessoa nao quiser, chama como NULL e a funcao vai desabilitar
+CriterioFiltro* criar_criterio_vazio(void); //cria um filtro vazio, com todos os campos desabilitados
+CriterioFiltro* criar_criterio(int falante, int assunto, int dia, int periodo);
 int comparar_depoimentos_criterio(Depoimento *depoimento, CriterioFiltro *criterio); //retorna 1 se o depoimento satisfaz o criterio, 0 caso contrário
 Lista *filtrar_depoimentos(Caderno *caderno, CriterioFiltro *criterio);
-void liberar_resultado_filtro(Lista *resultado); //libera a memória alocada para o resultado do filtro
+void liberar_resultado_filtro(Lista *resultado); //libera a memória alocada para o resultado do filtro (lembrar de fazer o free no criterio depois de usar essa funcao)
 
 Lista* depoimentos_do_suspeito(Caderno *caderno, int id_suspeito); //retorna uma lista de depoimentos do suspeito, ou NULL se não houver
 Lista* depoimentos_sobre_suspeito(Caderno *caderno, int id_suspeito); //retorna uma lista de depoimentos sobre o suspeito, ou NULL se não houver

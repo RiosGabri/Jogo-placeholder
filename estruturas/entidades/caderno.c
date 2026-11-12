@@ -1,10 +1,10 @@
+#define _POSIX_C_SOURCE 200809L //para o strdup funcionar no linux
 #include "caderno.h"
 #include "listas/lista-dupla.h"
 #include "listas/lista-simples.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#define _POSIX_C_SOURCE 200809L //para o strdup funcionar no linux
 
 Caderno* inicializar_caderno(int id) {
     Caderno *caderno = malloc(sizeof(Caderno));
@@ -30,6 +30,8 @@ Caderno* inicializar_caderno(int id) {
     caderno->reacoes.tamanho = 0;
 
     caderno->prox_id_depoimento = 1; 
+    caderno->prox_id_pista = 1;
+    caderno->prox_id_reacao = 1;
 
     return caderno;
 }
@@ -40,23 +42,24 @@ int registrar_depoimento(Caderno *caderno, int dia, int quem_falou, char* local,
     if (novo_depoimento == NULL) {
         return -1; // Falha ao alocar memória
     }
-
+    
     //depoimento em si, que será armazenado no nó da lista dupla
     Depoimento *depoimento = malloc(sizeof(Depoimento));
     if (depoimento == NULL) {
+        free(novo_depoimento);
         return -1; // Falha ao alocar memória
     }
-    depoimento->id_suspeito = caderno->prox_id_depoimento++; // Atribui o próximo id de depoimento e incrementa
+    depoimento->id_depoimento = caderno->prox_id_depoimento++; // Atribui o próximo id de depoimento e incrementa
     depoimento->dia = dia;
-    depoimento->quem_falou = strdup(quem_falou);
+    depoimento->id_falante = quem_falou;
     depoimento->local = strdup(local);
     depoimento->periodo = periodo;
-    depoimento->sobre_quem_fala = strdup(sobre_quem_fala);
+    depoimento->id_assunto = sobre_quem_fala;
     depoimento->texto = strdup(texto);
     depoimento->categoria = categoria;
 
     //adicionando o depoimento na seção de depoimentos do caderno
-    novo_depoimento->id = depoimento->id_suspeito; 
+    novo_depoimento->id = depoimento->id_depoimento; 
     novo_depoimento->dado = depoimento;
     novo_depoimento->prox = NULL;
     novo_depoimento->ant = NULL;
@@ -69,6 +72,8 @@ int registrar_depoimento(Caderno *caderno, int dia, int quem_falou, char* local,
     }
     caderno->depoimentos.fim = novo_depoimento;
     caderno->depoimentos.tamanho++;
+
+    return depoimento->id_depoimento; // Retorna o ID do depoimento registrado
 }
 void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char* descricao, ListaDupla *suspeitos_relacionados) {
     //nó do novo depoimento que fica na seção de depoimentos do caderno
@@ -89,7 +94,7 @@ void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char*
     pista->suspeitos_relacionados = suspeitos_relacionados;
 
     //adicionando o depoimento na seção de depoimentos do caderno
-    nova_pista->id = rand(); // Atribui um ID único para a pista
+    nova_pista->id = caderno->prox_id_pista++; // Atribui um ID único para a pista
     nova_pista->dado = pista;
     nova_pista->prox = NULL;
     nova_pista->ant = NULL;
@@ -121,7 +126,7 @@ void registrar_reacao(Caderno *caderno, int dia, int id_depoimento, char* quem_r
     reacao->tipo_reacao = tipo_reacao;
 
     //adicionando a reação na seção de reações do caderno
-    nova_reacao->id = rand(); // Atribui um ID único para a reação
+    nova_reacao->id = caderno->prox_id_reacao++; // Atribui um ID único para a reação
     nova_reacao->dado = reacao;
     nova_reacao->prox = NULL;
     nova_reacao->ant = NULL;
@@ -169,7 +174,7 @@ void ler_item_atual(Caderno *caderno){
     if (caderno->depoimentos.atual != NULL) {
         Depoimento *depoimento = (Depoimento *)caderno->depoimentos.atual->dado;
         //printf por enquanto que nao tem graficos
-        printf("Depoimento do suspeito %d: %s\n", depoimento->id_suspeito, depoimento->texto);
+        printf("Depoimento do suspeito %d: %s\n", depoimento->id_falante, depoimento->texto);
     } else if (caderno->pistas.atual != NULL) {
         Pista *pista = (Pista *)caderno->pistas.atual->dado;
         printf("Pista encontrada no dia %d: %s\n", pista->dia, pista->descricao);
@@ -181,15 +186,18 @@ void ler_item_atual(Caderno *caderno){
     }
 }
 
-Depoimento* buscar_depoimento_por_id_reacao(Caderno *caderno, int id_suspeito) {
+Depoimento* buscar_depoimento_por_id_reacao(Caderno *caderno, int id_depoimento) {
+    if (caderno == NULL) {
+        return NULL; // Caderno nulo, não há depoimentos
+    }
     NoListaDupla *atual = caderno->depoimentos.inicio;
     NoListaDupla *reacao_atual = caderno->reacoes.inicio;
     while (atual != NULL) {
         Depoimento *depoimento = (Depoimento *)atual->dado;
-        if (depoimento->id_suspeito == id_suspeito) {
+        if (depoimento->id_depoimento == id_depoimento) {
             while (reacao_atual != NULL) {
                 Reacao *reacao = (Reacao *)reacao_atual->dado;
-                if (reacao->id_depoimento == id_suspeito) {
+                if (reacao->id_depoimento == id_depoimento) {
                     return depoimento;
                 }
                 reacao_atual = reacao_atual->prox;
@@ -260,10 +268,10 @@ int comparar_depoimentos_criterio(Depoimento *depoimento, CriterioFiltro *criter
     if (!depoimento || !criterio) {
         return 0;
     }
-    if (criterio->falante != DESABILITADO && depoimento->quem_falou != criterio->falante) {
+    if (criterio->falante != DESABILITADO && depoimento->id_falante != criterio->falante) {
         return 0;
     }
-    if (criterio->assunto != DESABILITADO && depoimento->sobre_quem_fala != criterio->assunto){
+    if (criterio->assunto != DESABILITADO && depoimento->id_assunto != criterio->assunto){
          return 0;
     }
     if (criterio->dia != DESABILITADO && depoimento->dia != criterio->dia){
