@@ -1,9 +1,9 @@
-#include <suspeito.h>
-#include <lista-dupla-circular.h>
+#include "entidades/suspeito.h"
+#include "listas/lista-dupla-circular.h"
 #include <stdlib.h>
 #include <string.h>
 
-void carregar_suspeito(ListaDuplaCircular *lista, const char *nome, const char *cargo, int situacao, int papel){
+void carregar_suspeito(ListaDuplaCircular *lista, const char *nome, const char *cargo, enum Situacao situacao, enum Papel papel){
     Suspeito *novo_suspeito = malloc(sizeof(Suspeito));
     if (novo_suspeito == NULL) {
         return; // Falha ao alocar memória
