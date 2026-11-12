@@ -24,10 +24,11 @@ static void desenhar_titulo(void) {
     DrawText(TITULO_JOGO, (LARGURA_TELA - largura) / 2, 90, TAMANHO_TITULO, RAYWHITE);
 }
 
-static void desenhar_botao(int indice) {
+static void desenhar_botao(int indice, bool destacado) {
     Rectangle retangulo = obter_retangulo_botao(indice);
-    DrawRectangleRec(retangulo, (Color){45, 45, 60, 255});
-    DrawRectangleLinesEx(retangulo, 2, GRAY);
+    Color fundo = destacado ? (Color){80, 80, 110, 255} : (Color){45, 45, 60, 255};
+    DrawRectangleRec(retangulo, fundo);
+    DrawRectangleLinesEx(retangulo, 2, destacado ? RAYWHITE : GRAY);
 
     int largura_texto = MeasureText(ROTULOS[indice], TAMANHO_TEXTO_BOTAO);
     int x_texto = (int)(retangulo.x + (retangulo.width - largura_texto) / 2);
@@ -35,16 +36,41 @@ static void desenhar_botao(int indice) {
     DrawText(ROTULOS[indice], x_texto, y_texto, TAMANHO_TEXTO_BOTAO, RAYWHITE);
 }
 
+static int atualizar_selecao(int selecionado) {
+    if (IsKeyPressed(KEY_DOWN)) {
+        selecionado = (selecionado + 1) % TOTAL_BOTOES;
+    }
+    if (IsKeyPressed(KEY_UP)) {
+        selecionado = (selecionado <= 0) ? TOTAL_BOTOES - 1 : selecionado - 1;
+    }
+
+    Vector2 movimento = GetMouseDelta();
+    if (movimento.x != 0.0f || movimento.y != 0.0f) {
+        Vector2 mouse = GetMousePosition();
+        for (int i = 0; i < TOTAL_BOTOES; i++) {
+            if (CheckCollisionPointRec(mouse, obter_retangulo_botao(i))) {
+                selecionado = i;
+            }
+        }
+    }
+
+    return selecionado;
+}
+
 int main(void) {
     InitWindow(LARGURA_TELA, ALTURA_TELA, TITULO_JOGO);
     SetTargetFPS(60);
 
+    int selecionado = -1;
+
     while (!WindowShouldClose()) {
+        selecionado = atualizar_selecao(selecionado);
+
         BeginDrawing();
         ClearBackground((Color){20, 20, 28, 255});
         desenhar_titulo();
         for (int i = 0; i < TOTAL_BOTOES; i++) {
-            desenhar_botao(i);
+            desenhar_botao(i, i == selecionado);
         }
         EndDrawing();
     }
