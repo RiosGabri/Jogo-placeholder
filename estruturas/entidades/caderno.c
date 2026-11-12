@@ -70,3 +70,72 @@ void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem
     caderno->depoimentos.fim = novo_depoimento;
     caderno->depoimentos.tamanho++;
 }
+
+void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char* descricao, ListaDupla *suspeitos_relacionados) {
+    //nó do novo depoimento que fica na seção de depoimentos do caderno
+    NoListaDupla *nova_pista = malloc(sizeof(NoListaDupla));
+    if (nova_pista == NULL) {
+        return; // Falha ao alocar memória
+    }
+
+    //pista em si, que será armazenado no nó da lista dupla
+    Pista *pista = malloc(sizeof(Pista));
+    if (pista == NULL) {
+        return; // Falha ao alocar memória
+    }
+    pista->dia = dia;
+    strncpy(pista->local, local, sizeof(pista->local) - 1);
+    pista->local[sizeof(pista->local) - 1] = '\0';
+    strncpy(pista->objeto, objeto, sizeof(pista->objeto) - 1);
+    pista->objeto[sizeof(pista->objeto) - 1] = '\0';
+    strncpy(pista->descricao, descricao, sizeof(pista->descricao) - 1);
+    pista->descricao[sizeof(pista->descricao) - 1] = '\0';
+    pista->suspeitos_relacionados = suspeitos_relacionados;
+
+    //adicionando o depoimento na seção de depoimentos do caderno
+    nova_pista->dado = pista;
+    nova_pista->prox = NULL;
+    nova_pista->ant = NULL;
+
+    if (caderno->pistas.fim == NULL) {
+        caderno->pistas.inicio = nova_pista;
+    } else {
+        caderno->pistas.fim->prox = nova_pista;
+        nova_pista->ant = caderno->pistas.fim;
+    }
+    caderno->pistas.fim = nova_pista;
+    caderno->pistas.tamanho++;
+}
+
+void registrar_reacao(Caderno *caderno, int dia, int id_depoimento, char* quem_reagiu, enum TipoReacao tipo_reacao) {
+    //nó da nova reação que fica na seção de reações do caderno
+    NoListaDupla *nova_reacao = malloc(sizeof(NoListaDupla));
+    if (nova_reacao == NULL) {
+        return; // Falha ao alocar memória
+    }
+
+    //reação em si, que será armazenada no nó da lista dupla
+    Reacao *reacao = malloc(sizeof(Reacao));
+    if (reacao == NULL) {
+        return; // Falha ao alocar memória
+    }
+    reacao->dia = dia;
+    reacao->id_depoimento = id_depoimento;
+    strncpy(reacao->quem_reagiu, quem_reagiu, sizeof(reacao->quem_reagiu) - 1);
+    reacao->quem_reagiu[sizeof(reacao->quem_reagiu) - 1] = '\0';
+    reacao->tipo_reacao = tipo_reacao;
+
+    //adicionando a reação na seção de reações do caderno
+    nova_reacao->dado = reacao;
+    nova_reacao->prox = NULL;
+    nova_reacao->ant = NULL;
+
+    if (caderno->reacoes.fim == NULL) {
+        caderno->reacoes.inicio = nova_reacao;
+    } else {
+        caderno->reacoes.fim->prox = nova_reacao;
+        nova_reacao->ant = caderno->reacoes.fim;
+    }
+    caderno->reacoes.fim = nova_reacao;
+    caderno->reacoes.tamanho++;
+}
