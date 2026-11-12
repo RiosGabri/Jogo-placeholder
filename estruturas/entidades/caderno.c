@@ -1,7 +1,9 @@
-#include <caderno.h>
-#include <lista-dupla.h>
+#include "caderno.h"
+#include "listas/lista-dupla.h"
+#include "listas/lista-simples.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 Caderno* inicializar_caderno(int id) {
     Caderno *caderno = malloc(sizeof(Caderno));
@@ -32,7 +34,7 @@ Caderno* inicializar_caderno(int id) {
     return caderno;
 }
 
-void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem_falou, char* local, char* periodo, char* sobre_quem_fala, enum Categorias categoria, char* texto) {
+void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem_falou, char* local, enum Periodo periodo, char* sobre_quem_fala, enum Categorias categoria, char* texto) {
     //nó do novo depoimento que fica na seção de depoimentos do caderno
     NoListaDupla *novo_depoimento = malloc(sizeof(NoListaDupla));
     if (novo_depoimento == NULL) {
@@ -48,14 +50,13 @@ void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem
     depoimento->dia = dia;
     depoimento->quem_falou = strdup(quem_falou);
     depoimento->local = strdup(local);
-    depoimento->periodo = strdup(periodo);
+    depoimento->periodo = periodo;
     depoimento->sobre_quem_fala = strdup(sobre_quem_fala);
     depoimento->texto = strdup(texto);
     depoimento->categoria = categoria;
-    strncpy(depoimento->texto, texto, sizeof(depoimento->texto) - 1);
-    depoimento->texto[sizeof(depoimento->texto) - 1] = '\0';
 
     //adicionando o depoimento na seção de depoimentos do caderno
+    novo_depoimento->id = rand(); // Atribui um ID único para o depoimento
     novo_depoimento->dado = depoimento;
     novo_depoimento->prox = NULL;
     novo_depoimento->ant = NULL;
@@ -88,6 +89,7 @@ void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char*
     pista->suspeitos_relacionados = suspeitos_relacionados;
 
     //adicionando o depoimento na seção de depoimentos do caderno
+    nova_pista->id = rand(); // Atribui um ID único para a pista
     nova_pista->dado = pista;
     nova_pista->prox = NULL;
     nova_pista->ant = NULL;
@@ -119,6 +121,7 @@ void registrar_reacao(Caderno *caderno, int dia, int id_depoimento, char* quem_r
     reacao->tipo_reacao = tipo_reacao;
 
     //adicionando a reação na seção de reações do caderno
+    nova_reacao->id = rand(); // Atribui um ID único para a reação
     nova_reacao->dado = reacao;
     nova_reacao->prox = NULL;
     nova_reacao->ant = NULL;
@@ -142,7 +145,6 @@ void avancar_secao(Caderno *caderno){
         caderno->reacoes.atual = caderno->reacoes.atual->prox;
     }
 }
-
 void voltar_secao(Caderno *caderno){
     if (caderno->depoimentos.atual != NULL && caderno->depoimentos.atual->ant != NULL) {
         caderno->depoimentos.atual = caderno->depoimentos.atual->ant;
@@ -229,4 +231,70 @@ void liberar_caderno(Caderno *caderno) {
     }
 
     free(caderno); // Liberar o caderno em si
+}
+
+CriterioFiltro* criar_criterio_vazio(void) {
+    CriterioFiltro *criterio = malloc(sizeof *criterio);
+    if (!criterio) return NULL;
+    criterio->falante = criterio->assunto = criterio->dia = criterio->periodo = DESABILITADO;
+    return criterio;
+}
+
+CriterioFiltro* criar_criterio(int falante, int assunto, int dia, int periodo) {
+    CriterioFiltro *criterio = malloc(sizeof *criterio);
+    if (!criterio) return NULL;
+    criterio->falante = falante;
+    criterio->assunto = assunto;
+    criterio->dia = dia;
+    criterio->periodo = periodo;
+    return criterio;
+}
+
+int comparar_depoimentos_criterio(Depoimento *depoimento, CriterioFiltro *criterio) {
+    if (!depoimento || !criterio) {
+        return 0;
+    }
+    if (criterio->falante != DESABILITADO && depoimento->quem_falou != criterio->falante) {
+        return 0;
+    }
+    if (criterio->assunto != DESABILITADO && depoimento->sobre_quem_fala != criterio->assunto){
+         return 0;
+    }
+    if (criterio->dia     != DESABILITADO && depoimento->dia        != criterio->dia){
+        return 0;
+    }
+    if (criterio->periodo != DESABILITADO && depoimento->periodo    != criterio->periodo) {
+        return 0;
+    }
+    return 1;
+}
+
+Lista *filtrar_depoimentos(Caderno *caderno, CriterioFiltro *criterio) {
+    Lista *resultado = criar_lista_simples();
+    if (!resultado){
+        return NULL;
+    }
+    if (!caderno || !criterio){
+        return resultado;   // caderno vazio/NULL não trava
+    }
+
+    int sequencia = 1;
+    for (NoListaDupla *atual = caderno->depoimentos.inicio; atual != NULL; atual = atual->prox) {
+        if (comparar_depoimentos_criterio((Depoimento *)atual->dado, criterio)) {
+            lista_simples_inserir_no_fim(resultado, sequencia++, atual->dado);
+        }
+    }
+    return resultado;
+}
+void liberar_resultado_filtro(Lista *resultado) {
+    liberar_lista_simples(resultado);
+}
+
+Lista *depoimentos_do_suspeito(Caderno *caderno, int id_suspeito) {
+    CriterioFiltro criterio = { id_suspeito, DESABILITADO, DESABILITADO, DESABILITADO };
+    return filtrar_depoimentos(caderno, &criterio);
+}
+Lista *depoimentos_sobre_suspeito(Caderno *caderno, int id_suspeito) {
+    CriterioFiltro criterio = { DESABILITADO, id_suspeito, DESABILITADO, DESABILITADO };
+    return filtrar_depoimentos(caderno, &criterio);
 }

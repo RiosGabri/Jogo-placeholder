@@ -1,6 +1,7 @@
 #ifndef CADERNO_H
 #define CADERNO_H
 #include "listas/lista-dupla.h"
+#include "listas/lista-simples.h"
 
 //caderno é do tipo lista dupla
 //cada no representa uma seção = depoimentos, pistas e reação
@@ -17,6 +18,12 @@ enum TipoReacao{
     CONCORDA,
     DISCORDA,
     NEUTRO
+};
+
+enum Periodo{
+    MANHA,
+    TARDE,
+    NOITE
 };
 
 typedef struct {
@@ -37,9 +44,10 @@ typedef struct {
 typedef struct {
     int id_suspeito;
     int dia;
-    char *quem_falou;
+    char *quem_falou; //falante
+    char *sobre_quem_fala; //assunto
     char *local;
-    char *sobre_quem_fala;
+    enum Periodo periodo;
     enum Categorias categoria;
     char *texto;
 } Depoimento;
@@ -60,7 +68,7 @@ typedef struct {
 } Reacao;
 
 Caderno* inicializar_caderno(int id);
-void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem_falou, char* local, char *periodo, char* sobre_quem_fala, enum Categorias categoria, char* texto);
+void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem_falou, char* local, enum Periodo periodo, char* sobre_quem_fala, enum Categorias categoria, char* texto);
 void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char* descricao, ListaDupla *suspeitos_relacionados);
 void registrar_reacao(Caderno *caderno, int dia, int id_depoimento, char* quem_reagiu, enum TipoReacao tipo_reacao);
 void avancar_secao(Caderno *caderno); //move o atual para o próximo ou anterior da seção, parando nas pontas
@@ -70,4 +78,21 @@ void ler_item_atual(Caderno *caderno);
 Depoimento* buscar_depoimento_por_id_reacao(Caderno *caderno, int id_suspeito); //acha o depoimento ao qual uma reação se refere (linka um com o outro)
 void liberar_caderno(Caderno *caderno); //libera a memória alocada para o caderno e suas seções
 
+//filtro vai funcionar como se fosse um filtro de site, onde eu seleciono o que quero ver, e o resto é desabilitado
+#define DESABILITADO -1
+typedef struct {
+    int falante;   // id de quem falou, ou DESABILITADO
+    int assunto;   // id de sobre quem se fala, ou DESABILITADO
+    int dia;       // 1 a 7, ou DESABILITADO
+    int periodo;   // manhã, tarde ou noite, ou DESABILITADO
+} CriterioFiltro;
+
+CriterioFiltro* criar_criterio_vazio(); //cria um filtro vazio, com todos os campos desabilitados
+CriterioFiltro* criar_criterio(int falante, int assunto, int dia, int periodo); //o campo que a pessoa nao quiser, chama como NULL e a funcao vai desabilitar
+int comparar_depoimentos_criterio(Depoimento *depoimento, CriterioFiltro *criterio); //retorna 1 se o depoimento satisfaz o criterio, 0 caso contrário
+Lista *filtrar_depoimentos(Caderno *caderno, CriterioFiltro *criterio);
+void liberar_resultado_filtro(Lista *resultado); //libera a memória alocada para o resultado do filtro
+
+Lista* depoimentos_do_suspeito(Caderno *caderno, int id_suspeito); //retorna uma lista de depoimentos do suspeito, ou NULL se não houver
+Lista* depoimentos_sobre_suspeito(Caderno *caderno, int id_suspeito); //retorna uma lista de depoimentos sobre o suspeito, ou NULL se não houver
 #endif
