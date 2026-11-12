@@ -186,25 +186,18 @@ void ler_item_atual(Caderno *caderno){
     }
 }
 
-Depoimento* buscar_depoimento_por_id_reacao(Caderno *caderno, int id_depoimento) {
+Depoimento* buscar_depoimento_por_id(Caderno *caderno, int id_depoimento) {
     if (caderno == NULL) {
         return NULL; // Caderno nulo, não há depoimentos
     }
     NoListaDupla *atual = caderno->depoimentos.inicio;
-    NoListaDupla *reacao_atual = caderno->reacoes.inicio;
     while (atual != NULL) {
         Depoimento *depoimento = (Depoimento *)atual->dado;
         if (depoimento->id_depoimento == id_depoimento) {
-            while (reacao_atual != NULL) {
-                Reacao *reacao = (Reacao *)reacao_atual->dado;
-                if (reacao->id_depoimento == id_depoimento) {
-                    return depoimento;
-                }
-                reacao_atual = reacao_atual->prox;
+            return depoimento; // Depoimento encontrado
             }
+            atual = atual->prox;
         }
-        atual = atual->prox;
-    }
     return NULL; // Depoimento não encontrado
 }
 
