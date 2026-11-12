@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#define _POSIX_C_SOURCE 200809L //para o strdup funcionar no linux
 
 Caderno* inicializar_caderno(int id) {
     Caderno *caderno = malloc(sizeof(Caderno));
@@ -28,25 +29,24 @@ Caderno* inicializar_caderno(int id) {
     caderno->reacoes.atual = NULL;
     caderno->reacoes.tamanho = 0;
 
-    //caderno->caderno.inicio = NULL;
-    //caderno->caderno.fim = NULL;
+    caderno->prox_id_depoimento = 1; 
 
     return caderno;
 }
 
-void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem_falou, char* local, enum Periodo periodo, char* sobre_quem_fala, enum Categorias categoria, char* texto) {
+int registrar_depoimento(Caderno *caderno, int dia, int quem_falou, char* local, enum Periodo periodo, int sobre_quem_fala, enum Categorias categoria, char* texto) {
     //nó do novo depoimento que fica na seção de depoimentos do caderno
     NoListaDupla *novo_depoimento = malloc(sizeof(NoListaDupla));
     if (novo_depoimento == NULL) {
-        return; // Falha ao alocar memória
+        return -1; // Falha ao alocar memória
     }
 
     //depoimento em si, que será armazenado no nó da lista dupla
     Depoimento *depoimento = malloc(sizeof(Depoimento));
     if (depoimento == NULL) {
-        return; // Falha ao alocar memória
+        return -1; // Falha ao alocar memória
     }
-    depoimento->id_suspeito = id_suspeito;
+    depoimento->id_suspeito = caderno->prox_id_depoimento++; // Atribui o próximo id de depoimento e incrementa
     depoimento->dia = dia;
     depoimento->quem_falou = strdup(quem_falou);
     depoimento->local = strdup(local);
@@ -56,7 +56,7 @@ void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem
     depoimento->categoria = categoria;
 
     //adicionando o depoimento na seção de depoimentos do caderno
-    novo_depoimento->id = rand(); // Atribui um ID único para o depoimento
+    novo_depoimento->id = depoimento->id_suspeito; 
     novo_depoimento->dado = depoimento;
     novo_depoimento->prox = NULL;
     novo_depoimento->ant = NULL;
@@ -205,6 +205,8 @@ void liberar_caderno(Caderno *caderno) {
     NoListaDupla *atual = caderno->depoimentos.inicio;
     while (atual != NULL) {
         NoListaDupla *proximo = atual->prox;
+        free(((Depoimento *)atual->dado)->local); // Liberar a string local
+        free(((Depoimento *)atual->dado)->texto); // Liberar a string texto
         free(atual->dado); // Liberar o depoimento
         free(atual);       // Liberar o nó da lista
         atual = proximo;
@@ -214,6 +216,9 @@ void liberar_caderno(Caderno *caderno) {
     atual = caderno->pistas.inicio;
     while (atual != NULL) {
         NoListaDupla *proximo = atual->prox;
+        free(((Pista *)atual->dado)->local); // Liberar a string local
+        free(((Pista *)atual->dado)->objeto); // Liberar a string objeto
+        free(((Pista *)atual->dado)->descricao); // Liberar a string descricao
         Pista *pista = (Pista *)atual->dado;
         liberar_lista_dupla(pista->suspeitos_relacionados); // Liberar a lista de suspeitos relacionados
         free(pista);       // Liberar a pista
@@ -225,6 +230,7 @@ void liberar_caderno(Caderno *caderno) {
     atual = caderno->reacoes.inicio;
     while (atual != NULL) {
         NoListaDupla *proximo = atual->prox;
+        free(((Reacao *)atual->dado)->quem_reagiu); // Liberar a string quem_reagiu
         free(atual->dado); // Liberar a reação
         free(atual);       // Liberar o nó da lista
         atual = proximo;
@@ -260,10 +266,10 @@ int comparar_depoimentos_criterio(Depoimento *depoimento, CriterioFiltro *criter
     if (criterio->assunto != DESABILITADO && depoimento->sobre_quem_fala != criterio->assunto){
          return 0;
     }
-    if (criterio->dia     != DESABILITADO && depoimento->dia        != criterio->dia){
+    if (criterio->dia != DESABILITADO && depoimento->dia != criterio->dia){
         return 0;
     }
-    if (criterio->periodo != DESABILITADO && depoimento->periodo    != criterio->periodo) {
+    if (criterio->periodo != DESABILITADO && (int)depoimento->periodo != criterio->periodo) {
         return 0;
     }
     return 1;

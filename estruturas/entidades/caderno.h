@@ -38,14 +38,15 @@ typedef struct {
     Secao depoimentos; // Lista de depoimentos
     Secao pistas;      // Lista de pistas
     Secao reacoes;     // Lista de reações
+    int prox_id_depoimento; // Próximo ID de depoimento a ser atribuído e começa em 1
 } Caderno;
 
 //secoes
 typedef struct {
     int id_suspeito;
     int dia;
-    char *quem_falou; //falante
-    char *sobre_quem_fala; //assunto
+    int quem_falou; //falante
+    int sobre_quem_fala; //assunto
     char *local;
     enum Periodo periodo;
     enum Categorias categoria;
@@ -68,7 +69,7 @@ typedef struct {
 } Reacao;
 
 Caderno* inicializar_caderno(int id);
-void registrar_depoimento(Caderno *caderno, int id_suspeito, int dia, char* quem_falou, char* local, enum Periodo periodo, char* sobre_quem_fala, enum Categorias categoria, char* texto);
+int registrar_depoimento(Caderno *caderno, int dia, int quem_falou, char* local, enum Periodo periodo, int sobre_quem_fala, enum Categorias categoria, char* texto);
 void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char* descricao, ListaDupla *suspeitos_relacionados);
 void registrar_reacao(Caderno *caderno, int dia, int id_depoimento, char* quem_reagiu, enum TipoReacao tipo_reacao);
 void avancar_secao(Caderno *caderno); //move o atual para o próximo ou anterior da seção, parando nas pontas
