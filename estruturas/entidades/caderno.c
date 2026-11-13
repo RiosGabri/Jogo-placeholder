@@ -29,6 +29,11 @@ Caderno* inicializar_caderno(int id) {
     caderno->reacoes.atual = NULL;
     caderno->reacoes.tamanho = 0;
 
+    caderno->contradicoes.inicio = NULL;
+    caderno->contradicoes.fim = NULL;
+    caderno->contradicoes.atual = NULL;
+    caderno->contradicoes.tamanho = 0;
+
     caderno->prox_id_depoimento = 1; 
     caderno->prox_id_pista = 1;
     caderno->prox_id_reacao = 1;
@@ -73,8 +78,37 @@ int registrar_depoimento(Caderno *caderno, int dia, int quem_falou, char* local,
     caderno->depoimentos.fim = novo_depoimento;
     caderno->depoimentos.tamanho++;
 
+    verificar_conflitos_do_depoimento(caderno, depoimento);
+
     return depoimento->id_depoimento; // Retorna o ID do depoimento registrado
 }
+
+int verificar_conflitos_do_depoimento(Caderno * caderno, Depoimento * novo){
+    if(caderno == NULL || novo == NULL){
+        return 0;
+    }
+
+    int total_contradicoes = 0;
+
+    for(NoListaDupla * atual = caderno->depoimentos.inicio; atual != NULL; atual = atual->prox){
+        Depoimento * outro = atual->dado;
+
+        if(outro->id_depoimento == novo->id_depoimento){
+            continue;
+        }
+        if(!depoimentos_comparaveis(novo, outro)){
+            continue;
+        }
+        if(depoimentos_sao_contraditorios(novo, outro)){
+            if(registrar_contradicao(caderno, novo, outro)){
+                total_contradicoes ++;
+            }
+        }
+    }
+
+    return total_contradicoes;
+}
+
 void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char* descricao, ListaDupla *suspeitos_relacionados) {
     //nó do novo depoimento que fica na seção de depoimentos do caderno
     NoListaDupla *nova_pista = malloc(sizeof(NoListaDupla));
@@ -237,6 +271,17 @@ void liberar_caderno(Caderno *caderno) {
         atual = proximo;
     }
 
+    // Liberar contradições
+    atual = caderno->contradicoes.inicio;
+    while(atual != NULL){
+        NoListaDupla * proximo = atual->prox;
+
+        free(atual->dado);
+        free(atual);
+
+        atual = proximo;
+    }
+
     free(caderno); // Liberar o caderno em si
 }
 
@@ -304,4 +349,111 @@ Lista *depoimentos_do_suspeito(Caderno *caderno, int id_suspeito) {
 Lista *depoimentos_sobre_suspeito(Caderno *caderno, int id_suspeito) {
     CriterioFiltro criterio = { DESABILITADO, id_suspeito, DESABILITADO, DESABILITADO };
     return filtrar_depoimentos(caderno, &criterio);
+}
+
+int locais_conflitam(const Depoimento * A, const Depoimento * B){
+    if(A == NULL || B == NULL){
+        return 0;
+    }
+    if(A->local == NULL || B->local == NULL){
+        return 0;
+    }
+    if(strcmp(A->local, "não informado") == 0 || strcmp(B->local, "não informado") == 0){
+        return 0;
+    }
+    return strcmp(A->local, B->local) != 0;
+}
+
+int depoimentos_comparaveis(const Depoimento * A, const Depoimento * B){
+    if(A == NULL || B == NULL){
+        return 0;
+    }
+    if(A->id_assunto != B->id_assunto){
+        return 0;
+    }
+    if(A->dia != B->dia){
+        return 0;
+    }
+    if(A->periodo != B->periodo){
+        return 0;
+    }
+
+    return 1;
+}
+
+int depoimentos_sao_contraditorios(const Depoimento * A, const Depoimento * B){
+    if(!depoimentos_comparaveis(A, B)){
+        return 0;
+    }
+    return locais_conflitam(A, B);
+}
+
+int registrar_contradicao(Caderno * caderno, Depoimento * A, Depoimento * B){
+    if (caderno == NULL || A == NULL || B == NULL){
+        return 0;
+    }
+    if (!depoimentos_sao_contraditorios(A, B)){
+        return 0;
+    }
+    for(NoListaDupla * atual = caderno->contradicoes.inicio; atual != NULL; atual = atual->prox){
+        Contradicao * c = atual->dado;
+
+        int mesmo_par = (c->depoimento1->id_depoimento == A->id_depoimento &&
+             c->depoimento2->id_depoimento == B->id_depoimento) ||
+            (c->depoimento1->id_depoimento == B->id_depoimento &&
+             c->depoimento2->id_depoimento == A->id_depoimento);
+        if(mesmo_par == 1){
+            return 0;
+        }
+    }
+    Contradicao * nova = malloc(sizeof(Contradicao));
+    if(nova == NULL){
+        return 0;
+    }
+    nova->depoimento1 = A;
+    nova->depoimento2 = B;
+
+    int id = caderno->contradicoes.tamanho + 1;
+    NoListaDupla * novo = malloc(sizeof(NoListaDupla));
+
+    if(novo == NULL){
+        free(nova);
+        return 0;
+    }
+    novo->id = id;
+    novo->dado = nova;
+    novo->prox = NULL;
+    novo->ant = caderno->contradicoes.fim;
+
+    if(caderno->contradicoes.fim == NULL){
+        caderno->contradicoes.inicio = novo;
+    } else{
+        caderno->contradicoes.fim->prox = novo;
+    }
+
+    caderno->contradicoes.fim = novo;
+    caderno->contradicoes.tamanho ++;
+    return 1;
+}
+
+int detectar_contradicoes_todas(Caderno *caderno){
+    if(caderno == NULL){
+        return 0;
+    }
+
+    int total_contradicoes = 0;
+
+    for(NoListaDupla * atual = caderno->depoimentos.inicio; atual != NULL; atual = atual->prox){
+        for(NoListaDupla * proximo = atual->prox; proximo != NULL; proximo = proximo->prox){
+            Depoimento * A = atual->dado;
+            Depoimento * B = proximo->dado;
+            if(depoimentos_sao_contraditorios(A, B)){
+                if(registrar_contradicao(caderno, A, B)){
+                    total_contradicoes ++;
+                }
+            }
+        }
+    }
+
+    return total_contradicoes;
 }

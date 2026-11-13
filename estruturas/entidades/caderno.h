@@ -41,6 +41,7 @@ typedef struct {
     int prox_id_depoimento; // Próximo ID de depoimento a ser atribuído e começa em 1
     int prox_id_pista; // Próximo ID de pista a ser atribuído e começa em 1
     int prox_id_reacao; // Próximo ID de reação a ser atribuído e começa em 1
+    Secao contradicoes;
 } Caderno;
 
 //secoes
@@ -54,6 +55,11 @@ typedef struct {
     enum Categorias categoria;
     char *texto;
 } Depoimento;
+
+typedef struct Contradicao{
+    Depoimento * depoimento1;
+    Depoimento * depoimento2;
+} Contradicao;
 
 typedef struct {
     int dia;
@@ -72,6 +78,7 @@ typedef struct {
 
 Caderno* inicializar_caderno(int id);
 int registrar_depoimento(Caderno *caderno, int dia, int quem_falou, char* local, enum Periodo periodo, int sobre_quem_fala, enum Categorias categoria, char* texto);
+int verificar_conflitos_do_depoimento(Caderno *caderno, Depoimento *novo);
 void registrar_pista(Caderno *caderno, int dia, char* local, char* objeto, char* descricao, ListaDupla *suspeitos_relacionados);
 void registrar_reacao(Caderno *caderno, int dia, int id_depoimento, char* quem_reagiu, enum TipoReacao tipo_reacao);
 void avancar_secao(Caderno *caderno); //move o atual para o próximo ou anterior da seção, parando nas pontas
@@ -98,4 +105,10 @@ void liberar_resultado_filtro(Lista *resultado); //libera a memória alocada par
 
 Lista* depoimentos_do_suspeito(Caderno *caderno, int id_suspeito); //retorna uma lista de depoimentos do suspeito, ou NULL se não houver
 Lista* depoimentos_sobre_suspeito(Caderno *caderno, int id_suspeito); //retorna uma lista de depoimentos sobre o suspeito, ou NULL se não houver
+
+int locais_conflitam(const Depoimento * A, const Depoimento * B);
+int depoimentos_comparaveis(const Depoimento * A, const Depoimento * B);
+int depoimentos_sao_contraditorios(const Depoimento * A, const Depoimento * B);
+int registrar_contradicao(Caderno *caderno, Depoimento * A, Depoimento * B);
+int detectar_contradicoes_todas(Caderno *caderno);
 #endif

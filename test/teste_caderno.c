@@ -455,6 +455,269 @@ static void testar_pista(void) {
     liberar_caderno(caderno);
 }
 
+static void testar_contradicao_simples(void) {
+    Caderno *caderno = inicializar_caderno(ID_MARPLE);
+
+    verificar(caderno != NULL, "caderno deve ser criado");
+    if (caderno == NULL) {
+        return;
+    }
+
+    registrar_depoimento(caderno, 1, ID_ENGENHEIRO, "Refeitório",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento A");
+
+    registrar_depoimento(caderno, 1, ID_OPERARIA, "Almoxarifado",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento B");
+
+    verificar(caderno->contradicoes.tamanho == 1,
+              "dois depoimentos em locais diferentes devem gerar uma contradicao");
+
+    liberar_caderno(caderno);
+}
+
+static void testar_depoimentos_no_mesmo_local(void) {
+    Caderno *caderno = inicializar_caderno(ID_MARPLE);
+
+    registrar_depoimento(caderno, 1, ID_ENGENHEIRO, "Refeitório",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento A");
+
+    registrar_depoimento(caderno, 1, ID_OPERARIA, "Refeitório",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento B");
+
+    verificar(caderno->contradicoes.tamanho == 0,
+              "depoimentos no mesmo local nao devem gerar contradicao");
+
+    liberar_caderno(caderno);
+}
+
+static void testar_local_nao_informado(void) {
+    Caderno *caderno = inicializar_caderno(ID_MARPLE);
+
+    registrar_depoimento(caderno, 1, ID_ENGENHEIRO, "não informado",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento A");
+
+    registrar_depoimento(caderno, 1, ID_OPERARIA, "Refeitório",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento B");
+
+    verificar(caderno->contradicoes.tamanho == 0,
+              "local nao informado nao deve gerar contradicao");
+
+    liberar_caderno(caderno);
+}
+
+static void testar_dias_diferentes(void) {
+    Caderno *caderno = inicializar_caderno(ID_MARPLE);
+
+    registrar_depoimento(caderno, 1, ID_ENGENHEIRO, "Refeitório",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento A");
+
+    registrar_depoimento(caderno, 2, ID_OPERARIA, "Almoxarifado",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento B");
+
+    verificar(caderno->contradicoes.tamanho == 0,
+              "depoimentos de dias diferentes nao devem gerar contradicao");
+
+    liberar_caderno(caderno);
+}
+
+static void testar_periodos_diferentes(void) {
+    Caderno *caderno = inicializar_caderno(ID_MARPLE);
+
+    registrar_depoimento(caderno, 1, ID_ENGENHEIRO, "Refeitório",
+                         MANHA, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento A");
+
+    registrar_depoimento(caderno, 1, ID_OPERARIA, "Almoxarifado",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento B");
+
+    verificar(caderno->contradicoes.tamanho == 0,
+              "depoimentos de periodos diferentes nao devem gerar contradicao");
+
+    liberar_caderno(caderno);
+}
+
+static void testar_tres_depoimentos_contraditorios(void) {
+    Caderno *caderno = inicializar_caderno(ID_MARPLE);
+
+    registrar_depoimento(caderno, 1, ID_ENGENHEIRO, "Refeitório",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento A");
+
+    registrar_depoimento(caderno, 1, ID_OPERARIA, "Almoxarifado",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento B");
+
+    registrar_depoimento(caderno, 1, ID_MARPLE, "Enfermaria",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento C");
+
+    verificar(caderno->contradicoes.tamanho == 3,
+              "tres locais diferentes devem gerar tres contradicoes");
+
+    liberar_caderno(caderno);
+}
+
+static void testar_contradicao_duplicada(void) {
+    Caderno *caderno = inicializar_caderno(ID_MARPLE);
+
+    registrar_depoimento(caderno, 1, ID_ENGENHEIRO, "Refeitório",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento A");
+
+    registrar_depoimento(caderno, 1, ID_OPERARIA, "Almoxarifado",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento B");
+
+    Depoimento *A = caderno->depoimentos.inicio->dado;
+    Depoimento *B = caderno->depoimentos.fim->dado;
+
+    registrar_contradicao(caderno, B, A);
+
+    verificar(caderno->contradicoes.tamanho == 1,
+              "o mesmo par nao deve ser registrado duas vezes");
+
+    liberar_caderno(caderno);
+}
+
+static void testar_criterio_vazio(void) {
+    Caderno *caderno = criar_caderno_exemplo();
+    CriterioFiltro *criterio = criar_criterio_vazio();
+
+    Lista *resultado = filtrar_depoimentos(caderno, criterio);
+
+    verificar(resultado != NULL, "filtro vazio deve retornar uma lista");
+
+    if (resultado != NULL) {
+        int quantidade = 0;
+
+    for (NoLista *atual = resultado->inicio;
+        atual != NULL;
+        atual = atual->prox) {
+        quantidade++;
+    }
+
+    verificar(quantidade == caderno->depoimentos.tamanho,
+            "criterio vazio deve retornar todos os depoimentos");
+    }
+
+    liberar_resultado_filtro(resultado);
+    free(criterio);
+    liberar_caderno(caderno);
+}
+
+static void testar_caderno_vazio_contradicoes(void) {
+    Caderno *caderno = inicializar_caderno(ID_MARPLE);
+
+    verificar(detectar_contradicoes_todas(caderno) == 0,
+              "caderno vazio nao deve gerar contradicoes");
+
+    verificar(caderno->contradicoes.tamanho == 0,
+              "lista de contradicoes deve permanecer vazia");
+
+    liberar_caderno(caderno);
+}
+
+static void testar_integridade_memoria_contradicoes(void) {
+    Caderno *caderno = inicializar_caderno(ID_MARPLE);
+
+    registrar_depoimento(caderno, 1, ID_ENGENHEIRO, "Refeitório",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento A");
+
+    registrar_depoimento(caderno, 1, ID_OPERARIA, "Almoxarifado",
+                         NOITE, ID_ENGENHEIRO, TESTEMUNHO, "Depoimento B");
+
+    verificar(caderno->contradicoes.tamanho == 1,
+              "deve existir uma contradicao");
+
+    Contradicao *contradicao = caderno->contradicoes.inicio->dado;
+
+    verificar(contradicao->depoimento1 != NULL,
+              "primeiro depoimento deve continuar acessivel");
+
+    verificar(contradicao->depoimento2 != NULL,
+              "segundo depoimento deve continuar acessivel");
+
+    verificar(strcmp(contradicao->depoimento1->texto, "Depoimento B") == 0 ||
+              strcmp(contradicao->depoimento1->texto, "Depoimento A") == 0,
+              "texto do primeiro depoimento deve continuar valido");
+
+    liberar_caderno(caderno);
+}
+
+static void testar_detectar_contradicoes_todas(void) {
+    Caderno *caderno = inicializar_caderno(ID_MARPLE);
+
+    Depoimento *A = malloc(sizeof(Depoimento));
+    Depoimento *B = malloc(sizeof(Depoimento));
+
+    verificar(A != NULL && B != NULL,
+              "depoimentos devem ser alocados");
+
+    if (A == NULL || B == NULL) {
+        free(A);
+        free(B);
+        liberar_caderno(caderno);
+        return;
+    }
+
+    *A = (Depoimento){
+        .id_depoimento = 1,
+        .dia = 1,
+        .id_falante = ID_ENGENHEIRO,
+        .id_assunto = ID_ENGENHEIRO,
+        .local = malloc(strlen("Refeitório") + 1),
+        .periodo = NOITE,
+        .categoria = TESTEMUNHO,
+        .texto = malloc(strlen("Depoimento A") + 1),
+    };
+
+    strcpy(A->local, "Refeitório");
+    strcpy(A->texto, "Depoimento A");
+
+    *B = (Depoimento){
+        .id_depoimento = 2,
+        .dia = 1,
+        .id_falante = ID_OPERARIA,
+        .id_assunto = ID_ENGENHEIRO,
+        .local = malloc(strlen("Almoxarifado") + 1),
+        .periodo = NOITE,
+        .categoria = TESTEMUNHO,
+        .texto = malloc(strlen("Depoimento A") + 1),
+    };
+
+    strcpy(B->local, "Almoxarifado");
+    strcpy(B->texto, "Depoimento B");
+
+    NoListaDupla *noA = malloc(sizeof(NoListaDupla));
+    NoListaDupla *noB = malloc(sizeof(NoListaDupla));
+
+    verificar(noA != NULL && noB != NULL,
+              "nos devem ser alocados");
+
+    if (noA == NULL || noB == NULL) {
+        free(noA);
+        free(noB);
+        free(A->local);
+        free(A->texto);
+        free(B->local);
+        free(B->texto);
+        free(A);
+        free(B);
+        liberar_caderno(caderno);
+        return;
+    }
+
+    *noA = (NoListaDupla){.id = 1, .dado = A, .prox = noB, .ant = NULL};
+    *noB = (NoListaDupla){.id = 2, .dado = B, .prox = NULL, .ant = noA};
+
+    caderno->depoimentos.inicio = noA;
+    caderno->depoimentos.fim = noB;
+    caderno->depoimentos.tamanho = 2;
+    caderno->prox_id_depoimento = 3;
+
+    verificar(detectar_contradicoes_todas(caderno) == 1,
+              "detectar todas deve encontrar uma contradicao");
+
+    verificar(caderno->contradicoes.tamanho == 1,
+              "uma contradicao deve ser registrada");
+
+    liberar_caderno(caderno);
+}
+
 int main(void) {
     testar_inicializacao_e_caderno_vazio();
     testar_criterios();
@@ -465,6 +728,17 @@ int main(void) {
     testar_resultado_nao_copia_e_nao_libera_depoimentos();
     testar_reacao_vinculada_ao_depoimento();
     testar_pista();
+    testar_contradicao_simples();
+    testar_depoimentos_no_mesmo_local();
+    testar_local_nao_informado();
+    testar_dias_diferentes();
+    testar_periodos_diferentes();
+    testar_tres_depoimentos_contraditorios();
+    testar_contradicao_duplicada();
+    testar_criterio_vazio();
+    testar_caderno_vazio_contradicoes();
+    testar_integridade_memoria_contradicoes();
+    testar_detectar_contradicoes_todas();
 
     if (falhas == 0) {
         printf("OK: todos os testes do caderno passaram\n");
